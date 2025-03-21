@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Valgresultater Kontrolpanel</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #222;
+        color: #eee;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      h1,
+      h2 {
+        color: #fff;
+      }
+
+      .card {
+        background-color: #333;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .kommune-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      button {
+        background-color: #444;
+        color: white;
+        border: none;
+        padding: 12px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+      }
+
+      button:hover {
+        background-color: #555;
+      }
+
+      button.active {
+        background-color: #0085c7;
+        font-weight: bold;
+      }
+
+      .display-controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .display-controls button {
+        flex: 1;
+      }
+
+      .preview-container {
+        position: relative;
+        width: 100%;
+        padding-top: 56.25%; /* 16:9 aspect ratio */
+        margin-top: 20px;
+        background-color: #000;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .preview-iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+
+      .status {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #aaa;
+      }
+
+      .controls-section {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .control-col {
+        flex: 1;
+      }
+
+      .btn-primary {
+        background-color: #0085c7;
+      }
+
+      .btn-primary:hover {
+        background-color: #006daa;
+      }
+
+      .btn-danger {
+        background-color: #e60000;
+      }
+
+      .btn-danger:hover {
+        background-color: #cc0000;
+      }
+
+      .btn-success {
+        background-color: #00a65a;
+      }
+
+      .btn-success:hover {
+        background-color: #008d4c;
+      }
+
+      .btn-large {
+        padding: 15px;
+        font-size: 16px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Valgresultater Kontrolpanel</h1>
+
+      <div class="card">
+        <h2>Visningsvindue</h2>
+        <div class="display-controls">
+          <button id="btnOpenDisplay" class="btn-primary">Åbn Visning</button>
+          <button id="btnRefreshDisplay">Opdater Data</button>
+        </div>
+
+        <div class="preview-container">
+          <iframe
+            id="previewFrame"
+            class="preview-iframe"
+            src="about:blank"
+          ></iframe>
+        </div>
+
+        <div class="status">
+          Status: <span id="displayStatus">Ikke aktiv</span>
+        </div>
+      </div>
+
+      <div class="controls-section">
+        <div class="control-col">
+          <div class="card">
+            <h2>Vælg Kommune</h2>
+            <div id="kommuneButtons" class="kommune-grid">
+              <!-- Kommune-knapper indsættes her -->
+            </div>
+          </div>
+        </div>
+
+        <div class="control-col">
+          <div class="card">
+            <h2>Visningskontrol</h2>
+            <button id="btnCasparCG" class="btn-large btn-success">
+              Send til CasparCG
+            </button>
+            <button id="btnBurn" class="btn-large btn-primary">
+              Opdater visning
+            </button>
+            <p>
+              Nuværende Kommune:
+              <strong id="currentKommune">Ingen valgt</strong>
+            </p>
+            <p>API Endpoint: <span id="currentEndpoint">-</span></p>
+            <p>Sidste opdatering: <span id="lastUpdate">-</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Kommunedefinitioner
+      const kommuner = [
+        { id: "810", navn: "Brønderslev" },
+        { id: "813", navn: "Frederikshavn" },
+        { id: "820", navn: "Vesthimmerlands" },
+        { id: "825", navn: "Læsø" },
+        { id: "840", navn: "Rebild" },
+        { id: "846", navn: "Mariagerfjord" },
+        { id: "849", navn: "Jammerbugt" },
+        { id: "851", navn: "Aalborg" },
+        { id: "860", navn: "Hjørring" },
+      ];
+
+      // DOM-elementer
+      const kommuneButtonsEl = document.getElementById("kommuneButtons");
+      const previewFrameEl = document.getElementById("previewFrame");
+      const displayStatusEl = document.getElementById("displayStatus");
+      const btnOpenDisplayEl = document.getElementById("btnOpenDisplay");
+      const btnRefreshDisplayEl = document.getElementById("btnRefreshDisplay");
+      const btnCasparCGEl = document.getElementById("btnCasparCG");
+      const currentKommuneEl = document.getElementById("currentKommune");
+      const currentEndpointEl = document.getElementById("currentEndpoint");
+      const lastUpdateEl = document.getElementById("lastUpdate");
+
+      // State
+      let displayWindow = null;
+      let activeKommuneId = "851"; // Aalborg som default
+      let visningsUrl = "tv-valgresultater.html"; // Sti til visningssiden
+
+      // Opret kommune-knapper
+      function initializeKommuneButtons() {
+        kommuneButtonsEl.innerHTML = "";
+
+        kommuner.forEach((kommune) => {
+          const button = document.createElement("button");
+          button.textContent = kommune.navn;
+          button.dataset.id = kommune.id;
+          button.addEventListener("click", () => {
+            setAktivKommune(kommune.id);
+          });
+
+          if (kommune.id === activeKommuneId) {
+            button.classList.add("active");
+          }
+
+          kommuneButtonsEl.appendChild(button);
+        });
+      }
+
+      // Sæt aktiv kommune
+      function setAktivKommune(id) {
+        activeKommuneId = id;
+        const kommune = kommuner.find((k) => k.id === id) || { navn: "Ukendt" };
+
+        // Opdater UI
+        document.querySelectorAll("#kommuneButtons button").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.id === id);
+        });
+
+        currentKommuneEl.textContent = kommune.navn;
+        currentEndpointEl.textContent = `https://election-api.services.tv2.dk/kv/kv21/results/${id}`;
+        lastUpdateEl.textContent = new Date().toLocaleTimeString();
+
+        // Opdater visning hvis den er åben
+        if (displayWindow && !displayWindow.closed) {
+          displayWindow.location.href = `${visningsUrl}?id=${id}`;
+          previewFrameEl.src = `${visningsUrl}?id=${id}`;
+          displayStatusEl.textContent = `Viser ${kommune.navn}`;
+        } else {
+          previewFrameEl.src = `${visningsUrl}?id=${id}`;
+        }
+      }
+
+      // Åbn visningsvindue
+      function openDisplayWindow() {
+        // Luk eksisterende vindue hvis åben
+        if (displayWindow && !displayWindow.closed) {
+          displayWindow.close();
+        }
+
+        const url = `${visningsUrl}?id=${activeKommuneId}`;
+
+        // Åbn nyt vindue i fuld skærm
+        displayWindow = window.open(
+          url,
+          "ValgResultater",
+          "menubar=0,toolbar=0,location=0,status=0,fullscreen=1"
+        );
+
+        if (displayWindow) {
+          // Opdater status
+          displayStatusEl.textContent = "Visning åben";
+          previewFrameEl.src = url;
+
+          // Lyt efter hvis vinduet lukkes
+          const checkWindowClosed = setInterval(() => {
+            if (displayWindow.closed) {
+              displayStatusEl.textContent = "Visning lukket";
+              clearInterval(checkWindowClosed);
+            }
+          }, 1000);
+        } else {
+          alert(
+            "Kunne ikke åbne visningsvindue. Kontrollér at pop-up blocker er deaktiveret."
+          );
+          displayStatusEl.textContent = "Fejl ved åbning";
+        }
+      }
+
+      // Send besked til CasparCG (simuleret)
+      function sendToCasparCG() {
+        const kommune = kommuner.find((k) => k.id === activeKommuneId);
+        alert(
+          `Sender kommando til CasparCG:\nVis valgresultater for ${kommune.navn} (ID: ${activeKommuneId})\n\nDette er en simulering - implementer faktisk CasparCG-integration efter behov.`
+        );
+
+        // Her ville du implementere den faktiske CasparCG-kommunikation
+        // f.eks. via WebSocket eller HTTP API
+      }
+
+      // Event listeners
+      btnOpenDisplayEl.addEventListener("click", openDisplayWindow);
+
+      btnRefreshDisplayEl.addEventListener("click", () => {
+        if (displayWindow && !displayWindow.closed) {
+          displayWindow.location.reload();
+        }
+        previewFrameEl.src = previewFrameEl.src;
+        lastUpdateEl.textContent =
+          new Date().toLocaleTimeString() + " (manuel)";
+      });
+
+      btnCasparCGEl.addEventListener("click", sendToCasparCG);
+
+      // Initialiser
+      initializeKommuneButtons();
+      setAktivKommune(activeKommuneId);
+      const btnBurn = document.getElementById("btnBurn");
+
+      btnBurn.addEventListener("click", () => {
+        fetch(
+          `https://election-api.services.tv2.dk/kv/kv21/results/${activeKommuneId}`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            if (displayWindow && !displayWindow.closed) {
+              displayWindow.postMessage(
+                {
+                  action: "opdaterData",
+                  payload: data,
+                },
+                "*"
+              );
+
+              displayStatusEl.textContent = `Opdaterede visningen for kommune ID ${activeKommuneId}`;
+              lastUpdateEl.textContent =
+                new Date().toLocaleTimeString() + " (brændt)";
+            } else {
+              alert("Visningsvindue ikke åbent.");
+            }
+          })
+          .catch((err) => {
+            console.error("Fejl ved hentning af data:", err);
+            alert("Kunne ikke hente valgdata.");
+          });
+      });
+    </script>
+  </body>
+</html>

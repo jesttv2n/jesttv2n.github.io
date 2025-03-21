@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TV Valgvisning</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #00407a;
+        color: white;
+        font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, "Open Sans", sans-serif;
+        width: 1920px;
+        height: 1080px;
+      }
+
+      .container {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        height: 140px;
+        background-color: #003366;
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 4px solid #0085c7;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+      }
+
+      .title-box {
+        background-color: #0085c7;
+        padding: 15px 30px;
+        border-radius: 8px;
+        margin-right: 20px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 48px;
+        font-weight: bold;
+      }
+      h2 {
+        margin: 0;
+        font-size: 36px;
+        font-weight: bold;
+      }
+      .subtitle {
+        font-size: 28px;
+      }
+
+      .content {
+        flex: 1;
+        padding: 30px 40px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .info-box {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 15px 30px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .parti-liste {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .parti {
+        display: flex;
+        align-items: center;
+        height: 60px;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .parti-info {
+        width: 400px;
+        display: flex;
+        align-items: center;
+      }
+
+      .parti-bogstav {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30px;
+        font-weight: bold;
+        margin-right: 20px;
+        text-transform: uppercase;
+      }
+
+      .parti-navn {
+        font-size: 24px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .parti-procent {
+        width: 200px;
+        font-size: 26px;
+        font-weight: bold;
+        text-align: right;
+        padding-right: 10px;
+      }
+      .parti-mandater {
+        width: 200px;
+        font-size: 24px;
+        text-align: right;
+        padding-right: 10px;
+      }
+
+      .bar-container {
+        flex: 1;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+
+      .bar {
+        height: 100%;
+        transition: width 1s ease-out;
+        min-width: 2px;
+        border-radius: 20px;
+      }
+
+      .footer {
+        height: 80px;
+        background-color: #002244;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 40px;
+        font-size: 22px;
+      }
+
+      .opdateret {
+        opacity: 0.8;
+      }
+      .nedtaelling {
+        opacity: 0.8;
+        font-size: 20px;
+        margin-top: 4px;
+      }
+
+      .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 64, 122, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 40px;
+        z-index: 100;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        margin-right: 20px;
+        animation: spin 2s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      #fadeOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="loadingScreen" class="loading">
+        <div class="spinner">⟳</div>
+        Indlæser valgdata...
+      </div>
+
+      <div class="header">
+        <div class="header-left">
+          <div class="title-box"><h1>KV21</h1></div>
+          <h2>Kommunalvalg 2021</h2>
+        </div>
+        <div class="header-right">
+          <h2 id="kommuneNavn">Kommune</h2>
+          <span
+            id="optaltIndikator"
+            style="
+              display: block;
+              background: limegreen;
+              color: white;
+              padding: 5px 10px;
+              border-radius: 5px;
+              margin-left: 10px;
+            "
+            >100% optalt</span
+          >
+        </div>
+      </div>
+
+      <div class="content">
+        <div class="info-box">
+          <div id="valgdeltagelse" class="subtitle">Valgdeltagelse: 0.0%</div>
+          <div id="optaelling" class="subtitle">
+            0 af 0 stemmesteder optalt (0%)
+          </div>
+        </div>
+        <div id="partiListe" class="parti-liste"></div>
+      </div>
+
+      <div class="footer">
+        <div id="mandater">31 mandater i alt</div>
+        <div>
+          <div id="opdateretTid" class="opdateret">
+            Sidst opdateret: --:--:--
+          </div>
+          <div id="nedtaelling" class="nedtaelling">Opdaterer om: 30 sek</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const partiFarver = {
+        A: "#e4002b",
+        B: "#0085c7",
+        C: "#00a95c",
+        D: "#f58220",
+        E: "#0085ca",
+        F: "#d71440",
+        G: "#005221",
+        I: "#ffc20e",
+        K: "#004b87",
+        L: "#2cac2a",
+        M: "#522d80",
+        O: "#e3006e",
+        P: "#099d84",
+        Q: "#7bc143",
+        V: "#1e1e1e",
+        Ø: "#c00",
+        Å: "#6a0dad",
+      };
+      Object.keys(partiFarver).forEach(
+        (k) => (partiFarver[k.toLowerCase()] = partiFarver[k])
+      );
+      const farve = (bogstav) => partiFarver[bogstav] || "#888";
+
+      let kommuneId =
+        new URLSearchParams(window.location.search).get("id") || "851";
+
+      const el = (id) => document.getElementById(id);
+
+      async function hentValgdata() {
+        el("loadingScreen").style.display = "flex";
+        try {
+          const res = await fetch(
+            `https://election-api.services.tv2.dk/kv/kv21/results/${kommuneId}`
+          );
+          const data = await res.json();
+          visValgdata(data);
+        } catch (err) {
+          el("kommuneNavn").textContent = "DATAFEJL";
+        }
+      }
+
+      function visValgdata(data) {
+        const kommuneNavn = data.result?.name || "Ukendt kommune";
+        el("kommuneNavn").textContent =
+          (data.result.name || "Ukendt") + " Kommune";
+
+        // Håndter optællingsindikator
+        const optaltIndikator = el("optaltIndikator");
+        const counted = data.result?.countedPollingStations || 0;
+        const total = data.result?.totalPollingStations || 0;
+        const pct = total > 0 ? ((counted / total) * 100).toFixed(1) : 0;
+        el(
+          "optaelling"
+        ).textContent = `${counted} af ${total} stemmesteder optalt (${pct}%)`;
+
+        // Vis optællingsindikator kun hvis 100% er optalt
+        if (pct >= 100) {
+          optaltIndikator.style.display = "inline-block";
+        } else {
+          optaltIndikator.style.display = "none";
+        }
+        el("valgdeltagelse").textContent = data.result?.votesPercentage
+          ? `Valgdeltagelse: ${data.result.votesPercentage.toFixed(1)}%`
+          : "Valgdeltagelse: Afventer";
+
+        const totalMandater =
+          data.result?.totalSeats ||
+          (data.parties || []).reduce((sum, p) => sum + (p.seats || 0), 0);
+        el("mandater").textContent = `${totalMandater} mandater i alt`;
+
+        const liste = el("partiListe");
+        liste.innerHTML = "";
+
+        const partier = (data.parties || [])
+          .sort((a, b) => b.votesPercentage - a.votesPercentage)
+          .slice(0, 10);
+
+        partier.forEach((parti, i) => {
+          const kode = (parti.letter || parti.abbreviation || "").toUpperCase();
+          const navn = parti.name || "Ukendt";
+          const procent =
+            typeof parti.votesPercentage === "number"
+              ? parti.votesPercentage.toFixed(1)
+              : "0.0";
+          const procentDiff =
+            typeof parti.votesProcentChange === "number"
+              ? parti.votesProcentChange.toFixed(1)
+              : null;
+          const mandater = typeof parti.seats === "number" ? parti.seats : 0;
+          const mandaterDiff =
+            typeof parti.seatsChange === "number" ? parti.seatsChange : null;
+          const color = farve(kode);
+
+          const procentFarve =
+            procentDiff > 0 ? "#00ff99" : procentDiff < 0 ? "#ff5555" : "#ccc";
+          const mandaterFarve =
+            mandaterDiff > 0
+              ? "#00ff99"
+              : mandaterDiff < 0
+              ? "#ff5555"
+              : "#ccc";
+
+          const elBox = document.createElement("div");
+          elBox.className = "parti";
+          elBox.style.animationDelay = `${i * 100}ms`;
+          elBox.innerHTML = `
+          <div class="parti-info">
+            <div class="parti-bogstav" style="background-color: ${color}">${kode}</div>
+            <div class="parti-navn">${navn}</div>
+          </div>
+          <div class="parti-procent">
+            ${procent}% ${
+            procentDiff !== null
+              ? `<span style='color:${procentFarve}'>(${
+                  procentDiff > 0 ? "+" : ""
+                }${procentDiff})</span>`
+              : ""
+          }
+          </div>
+          <div class="parti-mandater">
+            ${mandater} ${mandater === 1 ? "mandat" : "mandater"} ${
+            mandaterDiff !== null
+              ? `<span style='color:${mandaterFarve}'>(${
+                  mandaterDiff > 0
+                    ? "+"
+                    : mandaterDiff < 0
+                    ? mandaterDiff
+                    : "±0"
+                })</span>`
+              : ""
+          }
+          </div>
+          <div class="bar-container">
+            <div class="bar" style="width: 0%; background-color: ${color}"></div>
+          </div>
+        `;
+
+          liste.appendChild(elBox);
+
+          setTimeout(() => {
+            const barEl = elBox.querySelector(".bar");
+            barEl.style.width = `${Math.min(100, parseFloat(procent) * 2)}%`;
+          }, 100);
+        });
+
+        el("opdateretTid").textContent = data.lastUpdated
+          ? `Sidst opdateret: ${new Date(data.lastUpdated).toLocaleTimeString(
+              "da-DK"
+            )}`
+          : "";
+        el("loadingScreen").style.display = "none";
+      }
+
+      window.addEventListener("message", function (event) {
+        if (event.data?.action === "skiftKommune") {
+          const fadeEl = document.getElementById("fadeOverlay");
+          fadeEl.style.opacity = "1"; // Fade out
+          setTimeout(() => {
+            kommuneId = event.data.kommuneId;
+            hentValgdata();
+            fadeEl.style.opacity = "0"; // Fade in igen efter nyt data er hentet
+          }, 600);
+        } else if (event.data?.action === "opdaterData") {
+          visValgdata(event.data.payload);
+        }
+      });
+
+      const refreshInterval = 30;
+      let sekunderTilOpdatering = refreshInterval;
+
+      setInterval(() => {
+        sekunderTilOpdatering--;
+        if (sekunderTilOpdatering <= 0) sekunderTilOpdatering = refreshInterval;
+        el(
+          "nedtaelling"
+        ).textContent = `Opdaterer om: ${sekunderTilOpdatering} sek`;
+      }, 1000);
+
+      setInterval(() => {
+        hentValgdata();
+        sekunderTilOpdatering = refreshInterval;
+      }, refreshInterval * 1000);
+
+      hentValgdata();
+    </script>
+    <div id="fadeOverlay"></div>
+  </body>
+</html>
