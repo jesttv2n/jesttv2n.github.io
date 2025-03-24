@@ -15,7 +15,51 @@
         width: 1920px;
         height: 1080px;
       }
+      /* Video baggrund */
+      .video-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+      }
 
+      .video-background video {
+        position: absolute;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -1;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        object-fit: cover;
+      }
+
+      /* Tilføj en overlayeffekt for bedre læsbarhed */
+      .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(
+          0,
+          64,
+          122,
+          0.5
+        ); /* Justér opacity efter behov */
+        z-index: 2;
+      }
+
+      /* Sørg for at indholdet ligger over videoen */
+      .container {
+        position: relative;
+        z-index: 5;
+      }
       .container {
         width: 1920px;
         height: 1080px;
@@ -32,6 +76,8 @@
         justify-content: space-between;
         align-items: center;
         border-bottom: 4px solid #0085c7;
+        z-index: 20;
+        position: relative;
       }
 
       .header-left {
@@ -65,6 +111,8 @@
         padding: 30px 40px;
         display: flex;
         flex-direction: column;
+        z-index: 10;
+        position: relative;
       }
 
       .info-box {
@@ -90,6 +138,7 @@
         opacity: 0;
         transform: translateY(10px);
         animation: fadeInUp 0.5s ease-out forwards;
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
       }
 
       @keyframes fadeInUp {
@@ -130,12 +179,14 @@
         font-weight: bold;
         text-align: right;
         padding-right: 10px;
+        transition: all 0.5s ease-in-out;
       }
       .parti-mandater {
         width: 200px;
         font-size: 24px;
         text-align: right;
         padding-right: 10px;
+        transition: all 0.5s ease-in-out;
       }
 
       .bar-container {
@@ -161,6 +212,8 @@
         align-items: center;
         padding: 0 40px;
         font-size: 22px;
+        z-index: 20;
+        position: relative;
       }
 
       .opdateret {
@@ -170,6 +223,34 @@
         opacity: 0.8;
         font-size: 20px;
         margin-top: 4px;
+        display: flex;
+        align-items: center;
+      }
+
+      .update-icon {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+        margin-right: 8px;
+        opacity: 0.5;
+        transition: all 0.5s ease;
+      }
+
+      .update-icon.pulse {
+        opacity: 1;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
       }
 
       .loading {
@@ -212,8 +293,53 @@
         background: rgba(0, 0, 0, 0.8);
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.5s ease-in-out;
-        z-index: 50;
+        transition: opacity 0.7s ease-in-out;
+        z-index: 90;
+      }
+
+      /* Data opdatering effekter */
+      .update-flash {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        opacity: 0;
+        pointer-events: none;
+        z-index: 30;
+        transition: opacity 0.7s ease-in-out;
+      }
+
+      /* Kommuneskift effekter */
+      #transitionOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 80;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+      }
+
+      .kommune-transition {
+        font-size: 72px;
+        font-weight: bold;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 30px 60px;
+        border-radius: 20px;
+        border: 4px solid #0085c7;
+        transform: scale(0.8);
+        opacity: 0;
+        transition: all 0.8s ease-in-out;
       }
 
       .optalt-indikator {
@@ -269,6 +395,23 @@
         margin-left: 8px;
       }
 
+      /* Animation for ændring af data */
+      .parti-data-change {
+        animation: highlight 1.5s ease-in-out;
+      }
+
+      @keyframes highlight {
+        0% {
+          background-color: rgba(255, 255, 255, 0);
+        }
+        50% {
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+        100% {
+          background-color: rgba(255, 255, 255, 0);
+        }
+      }
+
       /* Stilarter for CasparCG-metadata */
       .meta {
         display: none;
@@ -278,7 +421,16 @@
   <body>
     <!-- CasparCG metadata (ikke synligt) -->
     <div id="meta" class="meta"></div>
-
+    <!-- Video baggrund -->
+    <div class="video-background">
+      <div class="video-overlay"></div>
+      <video autoplay muted loop playsinline>
+        <source
+          src="https://assets.nord.bazo.dk/video/290922_fv_loop_v1.mp4"
+          type="video/mp4"
+        />
+      </video>
+    </div>
     <div class="container">
       <div id="loadingScreen" class="loading">
         <div class="spinner">⟳</div>
@@ -301,9 +453,7 @@
       <div class="content">
         <div class="info-box">
           <div id="valgdeltagelse" class="subtitle">Valgdeltagelse: 0.0%</div>
-          <div id="optaelling" class="subtitle">
-            0 af 0 stemmesteder optalt (0%)
-          </div>
+          <div id="optaelling" class="subtitle">Optællingstatus: 0%</div>
         </div>
         <div id="partiListe" class="parti-liste"></div>
       </div>
@@ -314,8 +464,27 @@
           <div id="opdateretTid" class="opdateret">
             Sidst opdateret: --:--:--
           </div>
-          <div id="nedtaelling" class="nedtaelling">Opdaterer om: 30 sek</div>
+          <div id="nedtaelling" class="nedtaelling">
+            <svg
+              class="update-icon"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
+              />
+            </svg>
+            Opdaterer om: 30 sek
+          </div>
         </div>
+      </div>
+
+      <!-- Visuelle effekter for overgange -->
+      <div id="fadeOverlay"></div>
+      <div id="updateFlash" class="update-flash"></div>
+      <div id="transitionOverlay">
+        <div id="kommuneTransition" class="kommune-transition"></div>
       </div>
     </div>
 
@@ -352,17 +521,60 @@
       // Hent kommune-id fra URL-parameter
       let kommuneId =
         new URLSearchParams(window.location.search).get("id") || "851";
+      let lastData = null; // Gemmer tidligere data til sammenligning
       let lastUpdateTimestamp = null;
       let cacheKey = Date.now(); // For at undgå cache ved API-kald
+      let opdateringsTimer = null;
 
       // Hjælpefunktion til at få fat i elementer
       const el = (id) => document.getElementById(id);
 
       /**
+       * Sammenligner to datasæt og returnerer en liste af ændringer
+       */
+      function findDataChanges(oldData, newData) {
+        if (!oldData || !oldData.parties || !newData || !newData.parties)
+          return [];
+
+        const changes = [];
+
+        // Map oldData partier for lettere opslag
+        const oldParties = {};
+        oldData.parties.forEach((party) => {
+          oldParties[party.letter || party.abbreviation] = party;
+        });
+
+        // Tjek hver parti i nydata
+        newData.parties.forEach((newParty) => {
+          const letter = newParty.letter || newParty.abbreviation;
+          const oldParty = oldParties[letter];
+
+          if (oldParty) {
+            // Tjek om procenter eller mandater er ændret
+            if (
+              oldParty.votesPercentage !== newParty.votesPercentage ||
+              oldParty.seats !== newParty.seats
+            ) {
+              changes.push({
+                partyLetter: letter,
+                percentChange:
+                  oldParty.votesPercentage !== newParty.votesPercentage,
+                seatsChange: oldParty.seats !== newParty.seats,
+              });
+            }
+          }
+        });
+
+        return changes;
+      }
+
+      /**
        * Hent valgdata fra TV2's API
        */
-      async function hentValgdata() {
-        el("loadingScreen").style.display = "flex";
+      async function hentValgdata(visLoadingScreen = true) {
+        if (visLoadingScreen) {
+          el("loadingScreen").style.display = "flex";
+        }
 
         try {
           // Tilføj cache-buster parameter til API-kaldet
@@ -378,11 +590,17 @@
           const data = await res.json();
           console.log("Valgdata modtaget:", data);
 
+          // Find ændringer hvis vi har tidligere data
+          const changes = findDataChanges(lastData, data);
+
+          // Gem som sidste data til næste sammenligning
+          lastData = data;
+
           // Gem metadata til CasparCG hvis det bruges
           gemCasparCGMetadata(data);
 
           // Vis data på siden
-          visValgdata(data);
+          visValgdata(data, changes, !visLoadingScreen);
 
           // Opdater cache-key til næste kald
           cacheKey = Date.now();
@@ -408,9 +626,8 @@
       function gemCasparCGMetadata(data) {
         const meta = {
           kommuneId: kommuneId,
-          kommuneNavn: data.name || "",
-          optalt: data.result?.countedPollingStations || 0,
-          totalt: data.result?.totalPollingStations || 0,
+          kommuneNavn: data.result.name || "",
+          optalt: data.result?.electionProgress || 0,
           opdateret: data.lastUpdated || "",
         };
 
@@ -418,18 +635,92 @@
       }
 
       /**
+       * Vis transitionseffekt ved kommuneskift
+       */
+      function visKommuneTransition(kommuneNavn) {
+        const transitionDiv = el("transitionOverlay");
+        const kommuneTransition = el("kommuneTransition");
+
+        // Sæt kommunenavn
+        kommuneTransition.textContent = kommuneNavn;
+
+        // Vis overlay
+        transitionDiv.style.opacity = "1";
+
+        // Start animation
+        setTimeout(() => {
+          kommuneTransition.style.opacity = "1";
+          kommuneTransition.style.transform = "scale(1)";
+        }, 100);
+
+        // Skjul efter animation
+        setTimeout(() => {
+          kommuneTransition.style.opacity = "0";
+          kommuneTransition.style.transform = "scale(1.2)";
+
+          setTimeout(() => {
+            transitionDiv.style.opacity = "0";
+            setTimeout(() => {
+              kommuneTransition.style.transform = "scale(0.8)";
+            }, 700);
+          }, 800);
+        }, 2000);
+      }
+
+      /**
+       * Vis data opdateringseffekt
+       */
+      function visDataUpdateEffect() {
+        const updateFlash = el("updateFlash");
+        updateFlash.style.opacity = "0.3";
+
+        setTimeout(() => {
+          updateFlash.style.opacity = "0";
+        }, 700);
+      }
+
+      /**
+       * Animation for opdatering af nedtælling
+       */
+      function opdaterNedtælling(sekunder) {
+        el("nedtaelling").textContent = `Opdaterer om: ${sekunder} sek`;
+
+        const updateIcon = document.querySelector(".update-icon");
+
+        // Tilføj pulserende animation når vi nærmer os opdatering
+        if (sekunder <= 5) {
+          updateIcon.classList.add("pulse");
+        } else {
+          updateIcon.classList.remove("pulse");
+        }
+      }
+
+      /**
        * Vis valgdata på siden
        */
-      function visValgdata(data) {
+      function visValgdata(data, changes = [], subtilOpdatering = false) {
+        // Hvis det er en subtil opdatering, viser vi en visuel effekt
+        if (subtilOpdatering) {
+          visDataUpdateEffect();
+        }
+
+        // Udpak datastrukturen
+        const resultData = data.result;
+
+        if (!resultData) {
+          console.error("Ingen resultatdata tilgængelig");
+          el("kommuneNavn").textContent = "Ingen data";
+          el("loadingScreen").style.display = "none";
+          return;
+        }
+
         // Kommune navn
-        const kommuneNavn = data.name || "Ukendt kommune";
+        const kommuneNavn = resultData.name || "Ukendt kommune";
         el("kommuneNavn").textContent = kommuneNavn + " Kommune";
 
         // Håndter optællingsindikator
         const optaltIndikator = el("optaltIndikator");
-        const counted = data.result?.countedPollingStations || 0;
-        const total = data.result?.totalPollingStations || 0;
-        const pct = total > 0 ? ((counted / total) * 100).toFixed(1) : 0;
+        const pct = resultData.electionProgress || 0;
 
         // Sæt optællingsprocent og klasse afhængigt af status
         optaltIndikator.textContent = `${pct}% optalt`;
@@ -444,35 +735,64 @@
         }
 
         // Opdater optællingstekst
-        el(
-          "optaelling"
-        ).textContent = `${counted} af ${total} stemmesteder optalt (${pct}%)`;
+        el("optaelling").textContent = `Optællingstatus: ${pct}%`;
 
         // Valgdeltagelse
-        el("valgdeltagelse").textContent = data.result?.votesPercentage
-          ? `Valgdeltagelse: ${data.result.votesPercentage.toFixed(1)}%`
+        el("valgdeltagelse").textContent = resultData.votesPercentage
+          ? `Valgdeltagelse: ${resultData.votesPercentage.toFixed(1)}%`
           : "Valgdeltagelse: Afventer";
 
         // Mandater i alt
         const totalMandater =
-          data.result?.totalSeats ||
+          resultData.totalSeats ||
           (data.parties || []).reduce((sum, p) => sum + (p.seats || 0), 0);
         el("mandater").textContent = `${totalMandater} mandater i alt`;
 
+        // Hvis det er subtil opdatering, opdaterer vi kun værdierne uden at genopbygge listen
+        if (subtilOpdatering && el("partiListe").children.length > 0) {
+          opdaterPartiListe(data.parties, changes);
+        } else {
+          // Ellers genopbygger vi hele listen
+          opretPartiListe(data.parties);
+        }
+
+        // Opdater tidsstempel
+        if (data.lastUpdated) {
+          const dato = new Date(data.lastUpdated);
+          el(
+            "opdateretTid"
+          ).textContent = `Sidst opdateret: ${dato.toLocaleTimeString(
+            "da-DK"
+          )}`;
+          lastUpdateTimestamp = data.lastUpdated;
+        } else {
+          el("opdateretTid").textContent = "";
+        }
+
+        // Skjul loading-skærm
+        el("loadingScreen").style.display = "none";
+      }
+
+      /**
+       * Opret hele partilisten på ny
+       */
+      function opretPartiListe(partier) {
         // Ryd partilisten
         const liste = el("partiListe");
         liste.innerHTML = "";
 
         // Hent partier, sorter efter stemmeprocent, vis kun top 10
-        const partier = (data.parties || [])
+        const visPartier = (partier || [])
           .sort((a, b) => b.votesPercentage - a.votesPercentage)
           .slice(0, 10);
 
         // Find partiet med flest mandater (vindende parti)
-        const vindendeParti = [...partier].sort((a, b) => b.seats - a.seats)[0];
+        const vindendeParti = [...visPartier].sort(
+          (a, b) => b.seats - a.seats
+        )[0];
 
         // Opret elementer for hvert parti
-        partier.forEach((parti, i) => {
+        visPartier.forEach((parti, i) => {
           const kode = (parti.letter || parti.abbreviation || "").toUpperCase();
           const navn = parti.name || "Ukendt";
           const procent =
@@ -491,6 +811,7 @@
           // Opret parti-element
           const elBox = document.createElement("div");
           elBox.className = "parti";
+          elBox.dataset.letter = kode;
 
           // Tilføj vindende-klasse hvis dette er partiet med flest mandater
           if (
@@ -558,22 +879,112 @@
             barEl.style.width = `${Math.min(100, parseFloat(procent) * 2)}%`;
           }, 100);
         });
+      }
 
-        // Opdater tidsstempel
-        if (data.lastUpdated) {
-          const dato = new Date(data.lastUpdated);
-          el(
-            "opdateretTid"
-          ).textContent = `Sidst opdateret: ${dato.toLocaleTimeString(
-            "da-DK"
-          )}`;
-          lastUpdateTimestamp = data.lastUpdated;
-        } else {
-          el("opdateretTid").textContent = "";
-        }
+      /**
+       * Opdater eksisterende partiliste ved at ændre værdierne og animere ændrede værdier
+       */
+      function opdaterPartiListe(partier, changes) {
+        // Find alle eksisterende parti-elementer
+        const partiElements = document.querySelectorAll(".parti");
+        if (!partiElements.length) return;
 
-        // Skjul loading-skærm
-        el("loadingScreen").style.display = "none";
+        // Sorter partier efter stemmeprocent
+        const sortedPartier = (partier || [])
+          .sort((a, b) => b.votesPercentage - a.votesPercentage)
+          .slice(0, 10);
+
+        // Opdater hvert parti-element
+        partiElements.forEach((partiElement, index) => {
+          if (index >= sortedPartier.length) return;
+
+          const parti = sortedPartier[index];
+          const partiLetter = partiElement.dataset.letter;
+
+          // Find procent og mandat elementer
+          const procentElement = partiElement.querySelector(".parti-procent");
+          const mandaterElement = partiElement.querySelector(".parti-mandater");
+          const barElement = partiElement.querySelector(".bar");
+
+          if (!procentElement || !mandaterElement || !barElement) return;
+
+          // Tjek om dette parti har ændringer
+          const hasChanges = changes.find((c) => c.partyLetter === partiLetter);
+
+          // Opdater værdierne
+          const procent =
+            typeof parti.votesPercentage === "number"
+              ? parti.votesPercentage.toFixed(1)
+              : "0.0";
+
+          const procentDiff =
+            typeof parti.votesPercentageChange === "number"
+              ? parti.votesPercentageChange.toFixed(1)
+              : null;
+
+          const mandater = typeof parti.seats === "number" ? parti.seats : 0;
+
+          const mandaterDiff =
+            typeof parti.seatsChange === "number" ? parti.seatsChange : null;
+
+          // Opdater procent
+          procentElement.innerHTML = `
+            ${procent}% 
+            ${
+              procentDiff !== null
+                ? `<span class="difference ${
+                    procentDiff > 0
+                      ? "positive"
+                      : procentDiff < 0
+                      ? "negative"
+                      : "neutral"
+                  }">(${procentDiff > 0 ? "+" : ""}${procentDiff})</span>`
+                : ""
+            }
+          `;
+
+          // Opdater mandater
+          mandaterElement.innerHTML = `
+            ${mandater} ${mandater === 1 ? "mandat" : "mandater"} 
+            ${
+              mandaterDiff !== null
+                ? `<span class="difference ${
+                    mandaterDiff > 0
+                      ? "positive"
+                      : mandaterDiff < 0
+                      ? "negative"
+                      : "neutral"
+                  }">(${
+                    mandaterDiff > 0
+                      ? "+"
+                      : mandaterDiff < 0
+                      ? mandaterDiff
+                      : "±0"
+                  })</span>`
+                : ""
+            }
+          `;
+
+          // Opdater søjle
+          barElement.style.width = `${Math.min(100, parseFloat(procent) * 2)}%`;
+
+          // Tilføj highlight animation til ændrede elementer
+          if (hasChanges) {
+            if (hasChanges.percentChange) {
+              procentElement.classList.add("parti-data-change");
+              setTimeout(() => {
+                procentElement.classList.remove("parti-data-change");
+              }, 1500);
+            }
+
+            if (hasChanges.seatsChange) {
+              mandaterElement.classList.add("parti-data-change");
+              setTimeout(() => {
+                mandaterElement.classList.remove("parti-data-change");
+              }, 1500);
+            }
+          }
+        });
       }
 
       /**
@@ -584,28 +995,57 @@
         // if (event.origin !== "http://din-betroede-domæne.dk") return;
 
         if (event.data?.action === "skiftKommune") {
+          // Få fat i kommune-navn til transition
+          const nyKommuneId = event.data.kommuneId;
+          const kommune = kommuner.find((k) => k.id === nyKommuneId) || {
+            navn: "Ukendt kommune",
+          };
+
+          // Vis kommune-transitions animation
+          visKommuneTransition(kommune.navn);
+
           // Fade-out effekt før vi skifter kommune
           const fadeEl = document.getElementById("fadeOverlay");
           fadeEl.style.opacity = "1"; // Fade out
 
           // Skift kommune efter fade-out
           setTimeout(() => {
-            kommuneId = event.data.kommuneId;
+            kommuneId = nyKommuneId;
+            lastData = null; // Nulstil sidste data så vi får fuld opdatering
             hentValgdata();
 
             // Fade in igen efter nyt data er hentet
             setTimeout(() => {
               fadeEl.style.opacity = "0";
             }, 100);
-          }, 600);
+          }, 700);
         } else if (event.data?.action === "opdaterData") {
           // Direkte opdatering med data leveret i beskeden
-          visValgdata(event.data.payload);
+          if (lastData) {
+            const changes = findDataChanges(lastData, event.data.payload);
+            visValgdata(event.data.payload, changes, true);
+          } else {
+            visValgdata(event.data.payload, [], false);
+          }
+          lastData = event.data.payload;
         } else if (event.data?.action === "genindlæs") {
           // Genindlæs hele siden
           location.reload();
         }
       });
+
+      // Definitioner til at understøtte overgange mellem kommuner
+      const kommuner = [
+        { id: "810", navn: "Brønderslev" },
+        { id: "813", navn: "Frederikshavn" },
+        { id: "820", navn: "Vesthimmerlands" },
+        { id: "825", navn: "Læsø" },
+        { id: "840", navn: "Rebild" },
+        { id: "846", navn: "Mariagerfjord" },
+        { id: "849", navn: "Jammerbugt" },
+        { id: "851", navn: "Aalborg" },
+        { id: "860", navn: "Hjørring" },
+      ];
 
       // Nedtællingstimer til næste opdatering
       const refreshInterval = 30; // sekunder
@@ -616,20 +1056,36 @@
         sekunderTilOpdatering--;
         if (sekunderTilOpdatering <= 0) {
           sekunderTilOpdatering = refreshInterval;
+
+          // Vis "opdaterer..." når tiden er ude
+          el("nedtaelling").innerHTML = `
+            <svg class="update-icon pulse" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"/>
+            </svg>
+            Opdaterer data...
+          `;
+        } else {
+          // Opdater normal nedtælling
+          el("nedtaelling").innerHTML = `
+            <svg class="update-icon ${
+              sekunderTilOpdatering <= 5 ? "pulse" : ""
+            }" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"/>
+            </svg>
+            Opdaterer om: ${sekunderTilOpdatering} sek
+          `;
         }
-        el(
-          "nedtaelling"
-        ).textContent = `Opdaterer om: ${sekunderTilOpdatering} sek`;
       }, 1000);
 
       // Hent nye data med jævne mellemrum
       setInterval(() => {
-        hentValgdata();
+        // Brug subtil opdatering (true=vis loading, false=skjul loading)
+        hentValgdata(false);
         sekunderTilOpdatering = refreshInterval;
       }, refreshInterval * 1000);
 
       // Initialiser siden
-      hentValgdata();
+      hentValgdata(true);
     </script>
     <div id="fadeOverlay"></div>
   </body>
