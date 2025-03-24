@@ -2,7 +2,7 @@
 <html lang="da">
   <head>
     <meta charset="UTF-8" />
-    <title>Valgte Kandidater Kontrolpanel</title>
+    <title>Valgresultater Kontrolpanel</title>
     <style>
       :root {
         --primary: #0085c7;
@@ -74,8 +74,8 @@
       }
 
       .status-online {
-        background-color: var(--success);
-        box-shadow: 0 0 5px var(--success);
+        background-color: var(--primary);
+        box-shadow: 0 0 5px var(--primary);
       }
 
       .status-offline {
@@ -106,7 +106,7 @@
         font-weight: bold;
         opacity: 1;
         position: relative;
-        background-color: var(--success);
+        background-color: var(--primary);
       }
 
       .container {
@@ -168,7 +168,7 @@
       }
 
       button.active {
-        background-color: var(--success);
+        background-color: var(--primary);
         font-weight: bold;
       }
 
@@ -430,6 +430,27 @@
         border-color: var(--primary);
         box-shadow: 0 0 0 2px rgba(0, 133, 199, 0.3);
       }
+
+      .countdown {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .countdown-number {
+        background-color: var(--darker);
+        color: white;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 4px;
+        margin: 0 5px;
+      }
     </style>
   </head>
   <body>
@@ -448,7 +469,7 @@
           />
           <path
             d="M10.45 15.5L8.08 13.14L9.5 11.73L10.45 12.68L14.26 8.87L15.67 10.28L10.45 15.5Z"
-            fill="#1eaa5c"
+            fill="#0085c7"
           />
           <path
             d="M17.3 8.7C17.69 8.31 17.89 7.8 17.89 7.26C17.88 6.21 17.04 5.36 16 5.35C15.46 5.35 14.94 5.54 14.56 5.93L13.49 7L14.91 8.41L15.97 7.35C16.17 7.14 16.51 7.14 16.71 7.34C16.92 7.55 16.92 7.88 16.72 8.09L15.66 9.16L17.08 10.57L17.3 10.35V10.35C17.68 9.96 17.88 9.44 17.88 8.91C17.88 8.38 17.69 7.86 17.3 7.48V7.48V8.7Z"
@@ -460,9 +481,9 @@
 
       <div class="navbar-menu">
         <a href="index.html">Hjem</a>
-        <a href="kontrolpanel.html">Valgresultater</a>
-        <a href="kandidat-kontrolpanel.html" class="active">Kandidater</a>
-        <a href="prognoser-kontrolpanel.html">Prognoser</a>
+        <a href="kontrolpanel.html" class="active">Valgresultater</a>
+        <a href="kandidat-kontrolpanel.html">Kandidater</a>
+        <a href="valgsted-kontrolpanel.html">Valgsteder</a>
       </div>
 
       <div class="navbar-status">
@@ -528,7 +549,7 @@
                     d="M21 3H3C1.9 3 1 3.9 1 5V17C1 18.1 1.9 19 3 19H8V21H16V19H21C22.1 19 23 18.1 23 17V5C23 3.9 22.1 3 21 3ZM21 17H3V5H21V17Z"
                   />
                 </svg>
-                Åbn kandidatvisning
+                Åbn visning
               </div>
               <div id="btnRefreshData" class="action-button">
                 <svg
@@ -674,12 +695,12 @@
                 <span id="currentKommune" class="info-value">Ingen valgt</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Valgte kandidater:</span>
-                <span id="antalKandidater" class="info-value">-</span>
+                <span class="info-label">Optællingsstatus:</span>
+                <span id="countStatus" class="info-value">-</span>
               </div>
               <div class="info-item">
-                <span class="info-label">Pladser i byrådet:</span>
-                <span id="antalMandater" class="info-value">-</span>
+                <span class="info-label">Valgdeltagelse:</span>
+                <span id="valgdeltagelse" class="info-value">-</span>
               </div>
               <div class="info-item">
                 <span class="info-label">Sidste opdatering:</span>
@@ -718,7 +739,7 @@
       const state = {
         displayWindow: null,
         activeKommuneId: "851", // Aalborg som default
-        visningsUrl: "valgte-kandidater-opdateret.html",
+        visningsUrl: "forbedret-valgresultater.html",
         sortAlphabetically: true,
         lastData: null,
         updateInterval: null,
@@ -841,10 +862,9 @@
         try {
           const cacheKey = Date.now(); // Undgå cache
 
-          // Hent data fra begge endpoints
-          log(`Henter kandidatdata for kommune ${state.activeKommuneId}...`);
+          log(`Henter valgdata for kommune ${state.activeKommuneId}...`);
 
-          const url = `https://election-api.services.tv2.dk/kv/kv21/areastatus/${state.activeKommuneId}?_cb=${cacheKey}`;
+          const url = `https://election-api.services.tv2.dk/kv/kv21/results/${state.activeKommuneId}?_cb=${cacheKey}`;
           const response = await fetch(url);
 
           if (!response.ok) {
@@ -855,6 +875,24 @@
 
           const data = await response.json();
           state.lastData = data;
+
+          // Opdater info panel
+          if (data.result) {
+            // Opdater optællingsstatus
+            const pct = data.result.electionProgress || 0;
+            el("countStatus").textContent = `${pct}%`;
+            el("countStatus").style.color =
+              pct >= 95 ? "#1eaa5c" : pct >= 50 ? "#f0ad4e" : "#d9534f";
+
+            // Opdater valgdeltagelse
+            if (data.result.votesPercentage) {
+              el(
+                "valgdeltagelse"
+              ).textContent = `${data.result.votesPercentage.toFixed(1)}%`;
+            } else {
+              el("valgdeltagelse").textContent = "Afventer";
+            }
+          }
 
           // Opdater tidsstempel
           if (data.lastUpdated) {
@@ -873,7 +911,7 @@
             );
           }
 
-          log(`Data opdateret for ${data.name || "kommune"}`);
+          log(`Data opdateret for ${data.result?.name || "kommune"}`);
           return data;
         } catch (error) {
           log(`Fejl ved hentning af data: ${error.message}`, "error");
@@ -929,7 +967,7 @@
         // Åbn nyt vindue i fuld skærm
         state.displayWindow = window.open(
           url,
-          "ValgteKandidater",
+          "Valgresultater",
           "menubar=0,toolbar=0,location=0,status=0,fullscreen=1"
         );
 
@@ -1012,13 +1050,13 @@
 
         // Log commando
         log(
-          `Sender til CasparCG (${host}:${port}): Viser ${kommune.navn} kandidater på kanal ${channel}`
+          `Sender til CasparCG (${host}:${port}): Viser ${kommune.navn} valgresultater på kanal ${channel}`
         );
 
         // Her ville du implementere den faktiske CasparCG-kommunikation
         // Eksempel på hvordan du kan sende en AMCP-kommando til CasparCG:
         /*
-      const template = 'kandidater_template';
+      const template = 'valgresultater_template';
       const casparCommand = `CG ${channel} ADD 1 "${template}" 1 "<templateData><kommune>${kommune.navn}</kommune><kommuneId>${state.activeKommuneId}</kommuneId></templateData>"`;
       
       // Brug WebSocket eller HTTP til at sende kommandoen til CasparCG-serveren
@@ -1032,7 +1070,7 @@
         // Simuleret succesbesked
         setTimeout(() => {
           log(
-            `CasparCG bekræftede: Viser ${kommune.navn} kandidater på kanal ${channel}`
+            `CasparCG bekræftede: Viser ${kommune.navn} valgresultater på kanal ${channel}`
           );
         }, 500);
       }
@@ -1097,7 +1135,7 @@
           updateStatus(false, "Klar til brug");
 
           // Log systemstart
-          log("Kandidat-kontrolpanel initialiseret");
+          log("Valgresultater-kontrolpanel initialiseret");
         });
       }
 
