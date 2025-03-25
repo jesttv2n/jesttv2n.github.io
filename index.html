@@ -3,74 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Valgresultater Kontrolsystem</title>
+    <!-- Reference to external CSS -->
+    <link rel="stylesheet" href="css/main.css" />
     <style>
-      :root {
-        --primary: #0085c7;
-        --primary-dark: #006daa;
-        --success: #1eaa5c;
-        --success-dark: #158348;
-        --danger: #d9534f;
-        --danger-dark: #c9302c;
-        --warning: #f0ad4e;
-        --warning-dark: #ec971f;
-        --dark: #222;
-        --darker: #1a1a1a;
-        --light-gray: #444;
-        --mid-gray: #333;
-        --card-gray: #2a2a2a;
-      }
-
-      body {
-        font-family: "Segoe UI", Arial, sans-serif;
-        background-color: var(--dark);
-        color: #eee;
-        margin: 0;
-        padding: 0;
-        overflow-x: hidden;
-      }
-
-      .navbar {
-        background-color: var(--darker);
-        padding: 15px 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .navbar h1 {
-        margin: 0;
-        font-size: 1.5rem;
-        display: flex;
-        align-items: center;
-      }
-
-      .navbar h1 svg {
-        margin-right: 10px;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 50px auto;
-        padding: 20px;
-        text-align: center;
-      }
-
-      .card {
-        background-color: var(--card-gray);
-        border-radius: 8px;
-        padding: 30px;
-        margin-bottom: 40px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
-
-      h2 {
-        color: #fff;
-        margin-top: 0;
-        margin-bottom: 30px;
-        font-size: 2rem;
-      }
-
+      /* Styles specific to the index page */
       .menu-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -126,11 +62,16 @@
         background-color: var(--warning);
       }
 
-      .footer {
-        margin-top: 50px;
+      .container {
+        max-width: 1200px;
+        margin: 50px auto;
+        padding: 20px;
         text-align: center;
-        font-size: 0.9rem;
-        opacity: 0.7;
+      }
+
+      h2 {
+        margin-bottom: 30px;
+        font-size: 2rem;
       }
     </style>
   </head>
@@ -165,7 +106,7 @@
         <h2>Vælg kontrolpanel</h2>
 
         <div class="menu-grid">
-          <a href="kontrolpanel.html" class="menu-item primary">
+          <a href="panels/kontrolpanel.html" class="menu-item primary">
             <svg
               viewBox="0 0 24 24"
               fill="currentColor"
@@ -182,7 +123,7 @@
             </p>
           </a>
 
-          <a href="kandidat-kontrolpanel.html" class="menu-item success">
+          <a href="panels/kandidat-kontrolpanel.html" class="menu-item success">
             <svg
               viewBox="0 0 24 24"
               fill="currentColor"
@@ -196,18 +137,18 @@
             <p>Styring af visning med valgte kandidater og borgmesterpost</p>
           </a>
 
-          <a href="prognoser-kontrolpanel.html" class="menu-item warning">
+          <a href="panels/valgsted-kontrolpanel.html" class="menu-item warning">
             <svg
               viewBox="0 0 24 24"
               fill="currentColor"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M3.5 18.49L9.5 12.48L13.5 16.48L22 6.92L20.59 5.51L13.5 13.48L9.5 9.48L2 16.99L3.5 18.49Z"
+                d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 10.9C11.39 10.9 10.9 10.39 10.9 9.75S11.39 8.6 12 8.6 13.1 9.11 13.1 9.75 12.61 10.9 12 10.9M12 14C11.39 14 10.9 13.5 10.9 12.86V12.83L11.2 12V12.87C11.2 12.94 11.64 13.03 12 13.03S12.8 12.94 12.8 12.87V12L13.1 12.83V12.86C13.1 13.5 12.61 14 12 14Z"
               />
             </svg>
-            <h3>Prognoser</h3>
-            <p>Styring af valgprognoser og fremskrivninger (kommende)</p>
+            <h3>Valgstedsresultater</h3>
+            <p>Styring af visning med resultater fra individuelle valgsteder</p>
           </a>
         </div>
       </div>

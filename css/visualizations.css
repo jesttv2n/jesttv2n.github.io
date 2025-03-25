@@ -1,0 +1,486 @@
+/* Visualization Styles */
+
+/* Base Container */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #00407a;
+  color: white;
+  font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, "Open Sans", sans-serif;
+  width: 1920px;
+  height: 1080px;
+}
+
+.container {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+}
+
+/* Header and Footer */
+.header {
+  height: 140px;
+  background-color: #003366;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 4px solid #0085c7;
+  z-index: 20;
+  position: relative;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.title-box {
+  background-color: #0085c7;
+  padding: 15px 30px;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.footer {
+  height: 80px;
+  background-color: #002244;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  font-size: 22px;
+  z-index: 20;
+  position: relative;
+}
+
+/* Content area */
+.content {
+  flex: 1;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.info-box {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 15px 30px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Typography */
+h1 {
+  margin: 0;
+  font-size: 48px;
+  font-weight: bold;
+}
+
+h2 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 28px;
+}
+
+/* Status indicators */
+.opdateret {
+  opacity: 0.8;
+}
+
+.nedtaelling {
+  opacity: 0.8;
+  font-size: 20px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.optalt-indikator {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: normal;
+  transition: background-color 0.3s;
+}
+
+.optalt-indikator.fuldt {
+  background-color: #1eaa5c;
+}
+
+.optalt-indikator.delvist {
+  background-color: #f0ad4e;
+}
+
+.optalt-indikator.minimalt {
+  background-color: #d9534f;
+}
+
+/* Loading indicator */
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 64, 122, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  z-index: 100;
+}
+
+/* Update icon animation */
+.update-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 8px;
+  opacity: 0.5;
+  transition: all 0.5s ease;
+}
+
+.update-icon.pulse {
+  opacity: 1;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Transition effects */
+#fadeOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease-in-out;
+  z-index: 90;
+}
+
+.update-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+  transition: opacity 0.7s ease-in-out;
+}
+
+#transitionOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 80;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+}
+
+.transition-content,
+.kommune-transition {
+  font-size: 72px;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px 60px;
+  border-radius: 20px;
+  border: 4px solid #0085c7;
+  transform: scale(0.8);
+  opacity: 0;
+  transition: all 0.8s ease-in-out;
+}
+
+/* Difference indicators */
+.difference {
+  display: inline-block;
+  font-size: 0.85em;
+  padding-left: 5px;
+  transition: color 0.3s;
+}
+
+.difference.positive {
+  color: #1eaa5c;
+}
+
+.difference.negative {
+  color: #ff5555;
+}
+
+.difference.neutral {
+  color: #aaa;
+}
+
+/* Party list styles */
+.parti-liste {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.parti {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.5s ease-out forwards;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.parti-info {
+  width: 400px;
+  display: flex;
+  align-items: center;
+}
+
+.parti-bogstav {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  font-weight: bold;
+  margin-right: 20px;
+  text-transform: uppercase;
+}
+
+.parti-navn {
+  font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.parti-procent {
+  width: 200px;
+  font-size: 26px;
+  font-weight: bold;
+  text-align: right;
+  padding-right: 10px;
+  transition: all 0.5s ease-in-out;
+}
+
+.parti-mandater,
+.parti-stemmer {
+  width: 200px;
+  font-size: 24px;
+  text-align: right;
+  padding-right: 10px;
+  transition: all 0.5s ease-in-out;
+}
+
+.bar-container {
+  flex: 1;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  transition: width 1s ease-out;
+  min-width: 2px;
+  border-radius: 20px;
+}
+
+/* Animation for data changes */
+.parti-data-change {
+  animation: highlight 1.5s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: rgba(255, 255, 255, 0);
+  }
+  50% {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Video background */
+.video-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.video-background video {
+  position: absolute;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 64, 122, 0.5);
+  z-index: 2;
+}
+
+/* Elected candidates specific styles */
+.kandidat-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  padding: 0 10px;
+  overflow-y: auto;
+  height: 100%;
+  align-content: flex-start;
+}
+
+.parti-gruppe {
+  width: 440px;
+  margin-bottom: 30px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.parti-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 10px 15px;
+}
+
+.kandidat {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+.kandidat-foto {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-right: 15px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid white;
+  background-color: #444;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  color: #ccc;
+}
+
+.kandidat-info {
+  flex: 1;
+}
+
+.kandidat-navn {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.kandidat-detaljer {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.kandidat-stemmer {
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 15px;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* Borgmester styling */
+.kandidat.borgmester {
+  border: 2px solid gold;
+  background-color: rgba(255, 215, 0, 0.1);
+  position: relative;
+}
+
+.kandidat.borgmester::after {
+  content: "Borgmester";
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background-color: gold;
+  color: black;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* CasparCG metadata - hidden */
+.meta {
+  display: none;
+}
