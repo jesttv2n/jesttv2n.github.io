@@ -52,10 +52,16 @@ a:hover {
 }
 
 /* Common Layout Elements */
-.container {
+.control-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
+}
+
+.view-container {
+  width: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 .card {

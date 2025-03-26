@@ -12,6 +12,8 @@ const kommuner = [
   { id: "849", navn: "Jammerbugt" },
   { id: "851", navn: "Aalborg" },
   { id: "860", navn: "Hjørring" },
+  { id: "773", navn: "Morsø" },
+  { id: "787", navn: "Thisted" },
 ];
 
 /**
