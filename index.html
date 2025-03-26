@@ -2,78 +2,11 @@
 <html lang="da">
   <head>
     <meta charset="UTF-8" />
-    <title>Valgresultater Kontrolsystem</title>
-    <!-- Reference to external CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KV21 Kontrolsystem</title>
     <link rel="stylesheet" href="css/main.css" />
-    <style>
-      /* Styles specific to the index page */
-      .menu-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 30px;
-        margin-top: 30px;
-      }
-
-      .menu-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 30px;
-        background-color: var(--mid-gray);
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        color: white;
-        text-decoration: none;
-      }
-
-      .menu-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-      }
-
-      .menu-item svg {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 20px;
-      }
-
-      .menu-item h3 {
-        margin: 0 0 10px 0;
-        font-size: 1.5rem;
-      }
-
-      .menu-item p {
-        margin: 0;
-        opacity: 0.8;
-        text-align: center;
-        font-size: 0.9rem;
-      }
-
-      .primary {
-        background-color: var(--primary);
-      }
-
-      .success {
-        background-color: var(--success);
-      }
-
-      .warning {
-        background-color: var(--warning);
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 50px auto;
-        padding: 20px;
-        text-align: center;
-      }
-
-      h2 {
-        margin-bottom: 30px;
-        font-size: 2rem;
-      }
-    </style>
+    <link rel="stylesheet" href="css/controls.css" />
+    <link rel="stylesheet" href="css/unified-styles.css" />
   </head>
   <body>
     <div class="navbar">
@@ -82,81 +15,375 @@
           width="24"
           height="24"
           viewBox="0 0 24 24"
-          fill="white"
+          fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
             d="M18 13V20H4V6H9.02C9.07 5.29 9.24 4.62 9.5 4H4C2.9 4 2 4.9 2 6V20C2 21.1 2.9 22 4 22H18C19.1 22 20 21.1 20 20V15L18 13Z"
+            fill="white"
           />
           <path
             d="M10.45 15.5L8.08 13.14L9.5 11.73L10.45 12.68L14.26 8.87L15.67 10.28L10.45 15.5Z"
-            fill="#1eaa5c"
+            fill="#0085c7"
           />
           <path
             d="M17.3 8.7C17.69 8.31 17.89 7.8 17.89 7.26C17.88 6.21 17.04 5.36 16 5.35C15.46 5.35 14.94 5.54 14.56 5.93L13.49 7L14.91 8.41L15.97 7.35C16.17 7.14 16.51 7.14 16.71 7.34C16.92 7.55 16.92 7.88 16.72 8.09L15.66 9.16L17.08 10.57L17.3 10.35V10.35C17.68 9.96 17.88 9.44 17.88 8.91C17.88 8.38 17.69 7.86 17.3 7.48V7.48V8.7Z"
             fill="#0085c7"
           />
         </svg>
-        Valgresultater Kontrolsystem
+        KV21 Kontrolsystem
       </h1>
+
+      <div class="navbar-menu">
+        <a href="index.html" class="active">Kontrolpanel</a>
+        <a href="panels/kontrolpanel.html">Gamle Paneler</a>
+      </div>
+
+      <div class="navbar-status">
+        <div id="statusIndicator" class="status-indicator status-offline"></div>
+        <span id="statusText">Ingen aktiv visning</span>
+      </div>
     </div>
 
     <div class="container">
-      <div class="card">
-        <h2>Vælg kontrolpanel</h2>
+      <!-- Take control bar -->
+      <div class="take-bar">
+        <div class="take-info" id="prepInfo">Ingen forberedt visning</div>
+        <div class="take-buttons">
+          <button id="btnTakeCut" class="btn-take cut" disabled>CUT</button>
+          <button id="btnTakeFade" class="btn-take fade" disabled>FADE</button>
+          <button id="btnTakeWipe" class="btn-take wipe" disabled>WIPE</button>
+        </div>
+      </div>
 
-        <div class="menu-grid">
-          <a href="panels/kontrolpanel.html" class="menu-item primary">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M7.5 21H2V9H7.5V21ZM14.75 3H9.25V21H14.75V3ZM22 11H16.5V21H22V11Z"
-              />
-            </svg>
-            <h3>Valgresultater</h3>
-            <p>
-              Styring af valgresultater med optælling, partier og
-              mandatfordeling
-            </p>
-          </a>
+      <div class="controls-section">
+        <!-- Left Column -->
+        <div>
+          <div class="card">
+            <div class="view-tabs">
+              <button id="tabResults" class="view-tab active">
+                Valgresultater
+              </button>
+              <button id="tabCandidates" class="view-tab">Kandidater</button>
+              <button id="tabPollingStations" class="view-tab">
+                Valgsteder
+              </button>
+            </div>
 
-          <a href="panels/kandidat-kontrolpanel.html" class="menu-item success">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
-              />
-            </svg>
-            <h3>Valgte kandidater</h3>
-            <p>Styring af visning med valgte kandidater og borgmesterpost</p>
-          </a>
+            <!-- Results Tab -->
+            <div id="resultsContent" class="tab-content active">
+              <div class="card-header">
+                <h2>Kommune</h2>
+                <div>
+                  <button id="btnRefreshKommuner" class="btn-sm">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
+                      />
+                    </svg>
+                    Opdater
+                  </button>
+                  <button id="btnSortKommuner" class="btn-sm">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 18H9V16H3V18ZM3 6V8H21V6H3ZM3 13H15V11H3V13Z"
+                      />
+                    </svg>
+                    Sorter
+                  </button>
+                </div>
+              </div>
+              <div id="kommuneButtons" class="kommune-grid">
+                <!-- Kommune-knapper indsættes her -->
+              </div>
 
-          <a href="panels/valgsted-kontrolpanel.html" class="menu-item warning">
-            <svg
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 10.9C11.39 10.9 10.9 10.39 10.9 9.75S11.39 8.6 12 8.6 13.1 9.11 13.1 9.75 12.61 10.9 12 10.9M12 14C11.39 14 10.9 13.5 10.9 12.86V12.83L11.2 12V12.87C11.2 12.94 11.64 13.03 12 13.03S12.8 12.94 12.8 12.87V12L13.1 12.83V12.86C13.1 13.5 12.61 14 12 14Z"
-              />
-            </svg>
-            <h3>Valgstedsresultater</h3>
-            <p>Styring af visning med resultater fra individuelle valgsteder</p>
-          </a>
+              <div style="margin-top: 20px">
+                <button id="btnPrepResults" class="btn-primary btn-block">
+                  Forbered valgresultater
+                </button>
+                <button id="btnUpdateResults" class="btn-warning btn-block">
+                  Opdater data
+                </button>
+              </div>
+            </div>
+
+            <!-- Candidates Tab -->
+            <div id="candidatesContent" class="tab-content">
+              <div class="card-header">
+                <h2>Kommune for kandidatvisning</h2>
+                <div>
+                  <button id="btnRefreshKommunerCand" class="btn-sm">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
+                      />
+                    </svg>
+                    Opdater
+                  </button>
+                </div>
+              </div>
+              <div id="kommuneButtonsCand" class="kommune-grid">
+                <!-- Kommune-knapper for kandidater indsættes her -->
+              </div>
+
+              <div style="margin-top: 20px">
+                <button id="btnPrepCandidates" class="btn-primary btn-block">
+                  Forbered kandidatvisning
+                </button>
+                <button id="btnUpdateCandidates" class="btn-warning btn-block">
+                  Opdater data
+                </button>
+              </div>
+            </div>
+
+            <!-- Polling Stations Tab -->
+            <div id="pollingStationsContent" class="tab-content">
+              <div class="card-header">
+                <h2>Kommune for valgsteder</h2>
+                <div>
+                  <button id="btnRefreshKommunerPS" class="btn-sm">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
+                      />
+                    </svg>
+                    Opdater
+                  </button>
+                </div>
+              </div>
+              <div id="kommuneButtonsPS" class="kommune-grid">
+                <!-- Kommune-knapper for valgsteder indsættes her -->
+              </div>
+
+              <div class="card-header" style="margin-top: 20px">
+                <h2>Valgsted</h2>
+                <div>
+                  <button id="btnRefreshValgsteder" class="btn-sm">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
+                      />
+                    </svg>
+                    Opdater
+                  </button>
+                </div>
+              </div>
+              <div id="valgstedButtons" class="kommune-grid">
+                <!-- Valgsted-knapper indsættes her -->
+              </div>
+
+              <div style="margin-top: 20px">
+                <button
+                  id="btnPrepPollingStation"
+                  class="btn-primary btn-block"
+                >
+                  Forbered valgstedsvisning
+                </button>
+                <button
+                  id="btnUpdatePollingStation"
+                  class="btn-warning btn-block"
+                >
+                  Opdater data
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Visningskontrol</h2>
+            </div>
+            <div class="grid-2">
+              <div id="btnOpenDisplay" class="action-button primary">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M21 3H3C1.9 3 1 3.9 1 5V17C1 18.1 1.9 19 3 19H8V21H16V19H21C22.1 19 23 18.1 23 17V5C23 3.9 22.1 3 21 3ZM21 17H3V5H21V17Z"
+                  />
+                </svg>
+                Åbn visning
+              </div>
+              <div id="btnCloseDisplay" class="action-button danger">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"
+                  />
+                </svg>
+                Luk visning
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>CasparCG</h2>
+            </div>
+            <div class="casparcg-container">
+              <div class="grid-2">
+                <div class="input-group">
+                  <label for="casparHost">Host/IP:</label>
+                  <input
+                    type="text"
+                    id="casparHost"
+                    value="127.0.0.1"
+                    class="input-control"
+                  />
+                </div>
+                <div class="input-group">
+                  <label for="casparPort">Port:</label>
+                  <input
+                    type="number"
+                    id="casparPort"
+                    value="5250"
+                    class="input-control"
+                  />
+                </div>
+              </div>
+              <div class="input-group">
+                <label for="casparChannel">Kanal:</label>
+                <select id="casparChannel" class="input-control">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </div>
+              <button
+                id="btnSendToCasparCG"
+                class="btn-success btn-block"
+                style="margin-top: 10px"
+              >
+                Send til CasparCG
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Systemlog</h2>
+              <button id="btnClearLog" class="btn-sm btn-danger">
+                Ryd log
+              </button>
+            </div>
+            <div id="logContainer" class="log-container">
+              <!-- Log-indgange vil blive vist her -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <h2>Forhåndsvisning</h2>
+              <button id="btnFullscreen" class="btn-sm">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M7 14H5V19H10V17H7V14ZM5 10H7V7H10V5H5V10ZM17 17H14V19H19V14H17V17ZM14 5V7H17V10H19V5H14Z"
+                  />
+                </svg>
+                Fuld skærm
+              </button>
+            </div>
+            <div class="preview-container">
+              <div class="preview-label">PREP-visning</div>
+              <iframe
+                id="previewFrame"
+                class="preview-iframe"
+                src="about:blank"
+              ></iframe>
+            </div>
+
+            <div class="info-panel">
+              <div class="info-item">
+                <span class="info-label">Aktiv visning:</span>
+                <span id="activeViewType" class="info-value">Ingen</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Kommune:</span>
+                <span id="currentKommune" class="info-value">Ingen valgt</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Valgsted:</span>
+                <span id="currentValgsted" class="info-value">-</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Sidste opdatering:</span>
+                <span id="lastUpdate" class="info-value">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Aktiv skærmvisning</h2>
+            </div>
+            <div class="preview-container">
+              <div class="preview-label">LIVE-visning</div>
+              <iframe
+                id="liveFrame"
+                class="preview-iframe"
+                src="about:blank"
+              ></iframe>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="footer">
-      <p>Udviklet til TV2 Nord • Kommunalvalg 2021</p>
-      <p>Version 1.0</p>
-    </div>
+    <!-- JavaScript Files -->
+    <script src="js/common.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/party-colors.js"></script>
+    <script src="js/municipality-data.js"></script>
+    <script src="js/polling-station-data.js"></script>
+    <script src="js/universal-controller.js"></script>
+    <script src="js/unified-control-panel.js"></script>
   </body>
 </html>

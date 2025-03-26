@@ -1,0 +1,121 @@
+/* Styles specific to unified control panel */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.preview-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.preview-container {
+  position: relative;
+}
+
+.take-bar {
+  background-color: var(--primary);
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.take-info {
+  font-weight: bold;
+}
+
+.take-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-take {
+  background-color: var(--success);
+  font-weight: bold;
+  min-width: 100px;
+}
+
+.btn-take:hover {
+  background-color: var(--success-dark);
+}
+
+.btn-take:disabled {
+  background-color: #555;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-take.cut:before {
+  content: "⚡";
+  margin-right: 5px;
+}
+
+.btn-take.fade:before {
+  content: "🔆";
+  margin-right: 5px;
+}
+
+.btn-take.wipe:before {
+  content: "↔️";
+  margin-right: 5px;
+}
+
+.status-prepared {
+  background-color: var(--warning);
+  box-shadow: 0 0 5px var(--warning);
+}
+
+.view-tabs {
+  display: flex;
+  background-color: var(--card-gray);
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+}
+
+.view-tab {
+  padding: 15px 25px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  color: #ccc;
+  font-size: 16px;
+  transition: all 0.3s;
+  flex: 1;
+  text-align: center;
+}
+
+.view-tab:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.view-tab.active {
+  background-color: var(--primary);
+  color: white;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .take-bar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .take-info {
+    text-align: center;
+  }
+}

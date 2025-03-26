@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TV Valg Universal Visning</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="../css/main.css" />
+    <link rel="stylesheet" href="../css/visualizations.css" />
+    <style>
+      /* Styles specific to the universal view */
+      .view-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      .view-iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        opacity: 1;
+        transition: opacity 0.7s ease-in-out;
+      }
+
+      .hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      /* Wipe transition effect */
+      .wipe-effect {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 100%;
+        background-color: white;
+        z-index: 100;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- CasparCG metadata (ikke synligt) -->
+    <div id="meta" class="meta"></div>
+
+    <!-- Video baggrund -->
+    <div class="video-background">
+      <div class="video-overlay"></div>
+      <video autoplay muted loop playsinline>
+        <source
+          src="../assets/backgrounds/290922_fv_loop_v1.mp4"
+          type="video/mp4"
+        />
+      </video>
+    </div>
+
+    <div class="view-container">
+      <!-- Active view (currently shown) -->
+      <iframe id="activeView" class="view-iframe" src="about:blank"></iframe>
+
+      <!-- Preview view (being prepared) -->
+      <iframe
+        id="previewView"
+        class="view-iframe hidden"
+        src="about:blank"
+      ></iframe>
+
+      <!-- Transition effect overlay -->
+      <div id="wipeEffect" class="wipe-effect"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // View state
+      const state = {
+        activeViewType: null,
+        previewViewType: null,
+        activeViewData: null,
+        previewViewData: null,
+        transitionInProgress: false,
+      };
+
+      /**
+       * Initialize the view
+       */
+      function initialize() {
+        // Listen for messages from control panels
+        window.addEventListener("message", handleMessage);
+
+        // Get initial parameters from URL if any
+        const params = new URLSearchParams(window.location.search);
+        const initialView = params.get("view");
+        const initialId = params.get("id") || params.get("kommune");
+
+        if (initialView && initialId) {
+          // Load initial view based on URL parameters
+          loadView(initialView, initialId, true);
+        }
+
+        // Log initialization
+        console.log("Universal view initialized");
+      }
+
+      /**
+       * Handle messages from control panels
+       */
+      function handleMessage(event) {
+        console.log("Message received:", event.data);
+
+        switch (event.data.action) {
+          case "prepView":
+            // Prepare a view but don't show it yet
+            prepareView(
+              event.data.viewType,
+              event.data.params,
+              event.data.data
+            );
+            break;
+
+          case "takeView":
+            // Show the prepared view
+            takeView(event.data.transition || "cut");
+            break;
+
+          case "directView":
+            // Directly show a view without preview
+            loadView(
+              event.data.viewType,
+              event.data.params,
+              true,
+              event.data.data
+            );
+            break;
+
+          case "updateData":
+            // Update data for current view
+            updateViewData(event.data.data);
+            break;
+
+          case "reload":
+            // Reload the entire page
+            window.location.reload();
+            break;
+        }
+      }
+
+      /**
+       * Prepare a view in the preview frame
+       */
+      function prepareView(viewType, params, data) {
+        // Set preview view type
+        state.previewViewType = viewType;
+        state.previewViewData = data;
+
+        // Build URL for the view
+        let viewUrl = getViewUrl(viewType, params);
+
+        // Load the view in the preview iframe
+        document.getElementById("previewView").src = viewUrl;
+
+        console.log(`Prepared view: ${viewType} with params:`, params);
+      }
+
+      /**
+       * Execute the prepared view
+       */
+      function takeView(transitionType = "cut") {
+        if (state.transitionInProgress) return;
+        if (!state.previewViewType) return;
+
+        state.transitionInProgress = true;
+
+        // Save previous active view
+        const previousView = document.getElementById("activeView");
+        const previewView = document.getElementById("previewView");
+
+        // Execute transition based on type
+        switch (transitionType) {
+          case "fade":
+            // Fade transition
+            previousView.classList.add("hidden");
+            previewView.classList.remove("hidden");
+
+            setTimeout(() => {
+              // Swap iframes
+              swapViews();
+              state.transitionInProgress = false;
+            }, 800);
+            break;
+
+          case "wipe":
+            // Wipe transition
+            const wipeEl = document.getElementById("wipeEffect");
+            wipeEl.style.width = "0%";
+            wipeEl.style.display = "block";
+
+            // Animate wipe
+            setTimeout(() => {
+              wipeEl.style.transition = "width 0.7s ease-in-out";
+              wipeEl.style.width = "100%";
+
+              setTimeout(() => {
+                // Show new content
+                previewView.classList.remove("hidden");
+
+                // Animate wipe back
+                wipeEl.style.left = "100%";
+                wipeEl.style.width = "0%";
+
+                setTimeout(() => {
+                  // Reset wipe element
+                  wipeEl.style.transition = "none";
+                  wipeEl.style.left = "0";
+                  wipeEl.style.display = "none";
+
+                  // Swap iframes
+                  swapViews();
+                  state.transitionInProgress = false;
+                }, 800);
+              }, 700);
+            }, 50);
+            break;
+
+          case "cut":
+          default:
+            // Cut transition (immediate)
+            previewView.classList.remove("hidden");
+            previousView.classList.add("hidden");
+
+            setTimeout(() => {
+              // Swap iframes
+              swapViews();
+              state.transitionInProgress = false;
+            }, 50);
+            break;
+        }
+
+        // Update state
+        state.activeViewType = state.previewViewType;
+        state.activeViewData = state.previewViewData;
+        state.previewViewType = null;
+        state.previewViewData = null;
+
+        console.log(`Take executed with ${transitionType} transition`);
+      }
+
+      /**
+       * Swap active and preview views
+       */
+      function swapViews() {
+        const activeView = document.getElementById("activeView");
+        const previewView = document.getElementById("previewView");
+
+        // Swap DOM elements
+        const tempSrc = activeView.src;
+        activeView.src = previewView.src;
+        previewView.src = tempSrc;
+
+        // Reset classes
+        activeView.classList.remove("hidden");
+        previewView.classList.add("hidden");
+      }
+
+      /**
+       * Directly load a view
+       */
+      function loadView(viewType, params, isActive = true, data = null) {
+        // Build URL for the view
+        let viewUrl = getViewUrl(viewType, params);
+
+        // Load the view in the appropriate iframe
+        if (isActive) {
+          document.getElementById("activeView").src = viewUrl;
+          state.activeViewType = viewType;
+          state.activeViewData = data;
+        } else {
+          document.getElementById("previewView").src = viewUrl;
+          state.previewViewType = viewType;
+          state.previewViewData = data;
+        }
+
+        console.log(
+          `Loaded ${
+            isActive ? "active" : "preview"
+          } view: ${viewType} with params:`,
+          params
+        );
+      }
+
+      /**
+       * Get URL for a specific view
+       */
+      function getViewUrl(viewType, params) {
+        let viewUrl;
+
+        switch (viewType) {
+          case "results":
+            viewUrl = "views/forbedret-valgresultater.html";
+            break;
+
+          case "candidates":
+            viewUrl = "views/valgte-kandidater-opdateret.html";
+            break;
+
+          case "polling-station":
+            viewUrl = "views/valgsteder-resultater.html";
+            break;
+
+          default:
+            viewUrl = "views/forbedret-valgresultater.html";
+        }
+
+        // Add parameters
+        if (params) {
+          const urlParams = new URLSearchParams();
+
+          // Add all params to URL
+          for (const key in params) {
+            urlParams.append(key, params[key]);
+          }
+
+          viewUrl += `?${urlParams.toString()}`;
+        }
+
+        return viewUrl;
+      }
+
+      /**
+       * Update data in active view
+       */
+      function updateViewData(data) {
+        if (!state.activeViewType) return;
+
+        // Store updated data
+        state.activeViewData = data;
+
+        // Send data to active view
+        const activeView = document.getElementById("activeView");
+        activeView.contentWindow.postMessage(
+          {
+            action: "opdaterData",
+            payload: data,
+          },
+          "*"
+        );
+
+        console.log("Updated active view data:", data);
+      }
+
+      // Initialize the view
+      document.addEventListener("DOMContentLoaded", initialize);
+    </script>
+  </body>
+</html>
